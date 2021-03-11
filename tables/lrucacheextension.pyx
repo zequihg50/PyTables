@@ -349,6 +349,7 @@ cdef class ObjectCache(BaseCache):
 
     assert nslot < self.nslots, "Attempting to remove beyond cache capacity."
     node = self.__list[nslot]
+    self.atimes[nslot] = numpy.iinfo(self.atimes.dtype).max
     if node is not None:
       self.__list[nslot] = None
       del self.__dict[node.key]
@@ -371,8 +372,7 @@ cdef class ObjectCache(BaseCache):
     # Protection against too large data cache size
     while size + self.cachesize > self.maxcachesize:
       # Remove the LRU node among the 10 largest ones
-      not_nones = [x is not None for x in self.__list]
-      largidx = self.sizes[not_nones].argsort()[-10:]
+      largidx = self.sizes.argsort()[-10:]
       nslot1 = self.atimes[largidx].argmin()
       nslot2 = largidx[nslot1]
       self.removeslot_(nslot2)
