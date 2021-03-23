@@ -369,12 +369,13 @@ cdef class ObjectCache(BaseCache):
     # Remove the previous nslot
     self.removeslot_(nslot)
     # Protection against too large data cache size
-    while size + self.cachesize > self.maxcachesize:
-      # Remove the LRU node among the 10 largest ones
-      largidx = self.sizes.argsort()[-10:]
-      nslot1 = self.atimes[largidx].argmin()
-      nslot2 = largidx[nslot1]
-      self.removeslot_(nslot2)
+    if size + self.cachesize > self.maxcachesize:
+      self.clearcache_()
+      ## Remove the LRU node among the 10 largest ones
+      #largidx = self.sizes.argsort()[-10:]
+      #nslot1 = self.atimes[largidx].argmin()
+      #nslot2 = largidx[nslot1]
+      #self.removeslot_(nslot2)
     # Insert the new one
     node = ObjectNode(key, value, nslot)
     self.ratimes[nslot] = self.incseqn()
